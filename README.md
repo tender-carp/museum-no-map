@@ -2,7 +2,7 @@
 
 *The Museum That Is Not on the Map*
 
-![cover](./cover.jpg)
+![cover](./cover.png)
 
 まだ誰も訪れたことのない空間へ。
 
