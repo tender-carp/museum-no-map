@@ -1,40 +1,25 @@
 # 地図にない美術館
-### A Museum That Is Not on the Map
 
-> どこにも存在しない美術館を、あなたが設計する。
+*The Museum That Is Not on the Map*
 
----
+![cover](./cover.jpg)
 
-## これは何？
+まだ誰も訪れたことのない空間へ。
 
-「地図にない美術館」は、想像の中にだけ存在する美術館を設計し、静かに鑑賞するための体験アプリです。
+AIと共に自分だけの美術館を設計し、静かに鑑賞するためのWebアプリです。
+すべてブラウザ内で完結し、外部サーバーへのデータ送信はありません
+（訪問者数の把握のため Google アナリティクスのみ利用）。
 
-- AIプロンプトを生成して、空間や作品の画像を作る
-- 作った美術館を「招待状」として誰かに贈る
-- 訪れた記録が「半券」として手元に残る
+## 訪れる
 
-## What is this?
+[https://tender-carp.github.io/museum-no-map/](https://tender-carp.github.io/museum-no-map/)
 
-*A Museum That Is Not on the Map* is an interactive experience for designing and visiting museums that exist only in the imagination.
+## 作者
 
-- Generate AI image prompts to build your spaces and artworks
-- Share your museum as an "invitation file" with others
-- Each visit leaves behind a quiet ticket stub as a memory
+松田 慶光
 
 ---
 
-## 使い方 / How to use
-
-👉 **[今すぐ体験する / Visit now](https://tender-carp.github.io/museum-no-map/)**
-
----
-
-## 技術 / Tech
-
-Vanilla JavaScript, Web Audio API, IndexedDB, Supabase Storage
-
----
-
-## 作者 / Author
-
-Matsuda Yoshimitsu
+© 2026 Matsuda Yoshimitsu. All rights reserved.  
+個人的な鑑賞および非商用での共有は自由です。  
+無断での商用利用・転載・画像の単独抽出はご遠慮ください。
