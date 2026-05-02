@@ -1,0 +1,481 @@
+--- START OF FILE index.html ---
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>地図にない美術館</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500&family=Noto+Sans+JP:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/lib/idb-keyval.js"></script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1N4Z1YTJ6P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-1N4Z1YTJ6P');
+  </script>
+</head>
+<body>
+  <div id="app">
+    
+    <!-- ====================================
+         タイトル画面
+         ==================================== -->
+    <section id="screen-title" class="screen active">
+      <div class="title-container">
+        <h1 id="main-title">地図にない美術館</h1>
+        <p class="subtitle">まだ誰も訪れたことのない空間へ。</p>
+        
+        <div class="title-actions">
+          <button id="btn-start" class="btn-primary">美術館を訪れる</button>
+          <button id="btn-workshop" class="btn-secondary">自分の美術館を設計する</button>
+        </div>
+        
+        <footer class="title-footer">
+          <div class="title-footer-links">
+            <button id="btn-show-terms" class="btn-text-quiet">この美術館について</button>
+            <button id="btn-show-etiquette" class="btn-text-quiet">美術館を贈るには／受け取るには</button>
+          </div>
+          <p class="copyright">© 2026 [Matsuda Yoshimitsu]. All rights reserved.</p>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ====================================
+         現在地の記録
+         ==================================== -->
+    <section id="screen-departure" class="screen">
+      <header class="screen-header">
+        <h2>現在地の記録</h2>
+        <p class="hint">この扉は、世界のどこからでも開くことができる。<br>あなたは今、どこにいますか？</p>
+      </header>
+      
+      <div class="center-form-container">
+        <input type="text" id="input-departure" placeholder="例: 冬の東京、雨の降る自室、など" autocomplete="off" class="input-center">
+        <button id="btn-confirm-departure" class="btn-primary btn-block">現在地を確定する</button>
+      </div>
+    </section>
+
+    <!-- ====================================
+         行き先（美術館）の選択
+         ==================================== -->
+    <section id="screen-museum" class="screen">
+      <div id="abstract-map-bg"></div>
+      <div class="screen-content-layer">
+        <header class="screen-header">
+          <h2>概念の地図</h2>
+          <p class="hint">緯度も経度もない。環境の言葉だけを頼りに、行き先を探す。</p>
+        </header>
+        
+        <div id="museum-list" class="card-grid map-mode"></div>
+        
+        <div class="action-footer hidden" id="wrap-enter-museum">
+          <button id="btn-enter-museum" class="btn-primary btn-block">この空間へ向かう</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================
+         調律（暗転トランジション）
+         ==================================== -->
+    <section id="screen-tuning" class="screen">
+      <div class="tuning-text-container">
+        <p id="tuning-text"></p>
+      </div>
+    </section>
+
+    <!-- ====================================
+         ツアー（鑑賞）画面
+         ==================================== -->
+    <section id="screen-tour" class="screen">
+      <div id="tour-view">
+        <div id="tour-image"></div>
+        <div id="tour-overlay" class="delayed-ui">
+          <h2 id="tour-title"></h2>
+          <div id="tour-meta">
+            <span id="tour-phase"></span>
+            <span id="tour-lighting"></span>
+          </div>
+        </div>
+      </div>
+      <div id="tour-body" class="delayed-ui-late">
+        <p id="tour-description"></p>
+        <div id="tour-flavor-text" class="flavor-box hidden"></div>
+        
+        <div id="activity-list" class="activity-grid"></div>
+        
+        <div id="tour-nav" class="tour-nav-actions">
+          <button id="btn-prev-phase" class="btn-secondary hidden">← 前の空間へ戻る</button>
+          <button id="btn-next-phase" class="btn-primary" style="flex: 1;">次の空間へ進む</button>
+        </div>
+        <div class="tour-exit-row">
+          <button id="btn-exit-tour" class="btn-text-quiet">静かに退館する</button>
+        </div>
+      </div>
+      <audio id="tour-audio" preload="auto" loop></audio>
+    </section>
+
+    <!-- ====================================
+         エンディング（印象・芳名帳・半券）
+         ==================================== -->
+    <section id="screen-ending" class="screen">
+      
+      <!-- ステップ1: 印象 -->
+      <div id="ending-step-impression" class="ending-step">
+        <header class="screen-header text-center">
+          <h2>心に残ったもの</h2>
+          <p class="hint">この旅で、最も深く触れたものをひとつだけ選んでください。<br>選ばれたものは、半券に小さく刻まれます。</p>
+        </header>
+        <div id="impression-list" class="impression-grid"></div>
+        <div class="action-footer text-center">
+          <button id="btn-skip-impression" class="btn-secondary">何も選ばずに進む</button>
+        </div>
+      </div>
+
+      <!-- ステップ2: 半券 -->
+      <div id="ending-step-ticket" class="ending-step hidden">
+        <div class="ticket-receipt" id="ending-ticket-receipt">
+          <h2 class="ticket-title">鑑賞の記録</h2>
+          <div class="ticket-divider"></div>
+          <div class="ticket-details">
+            <p><span>出発地</span> <strong id="ticket-departure">---</strong></p>
+            <p><span>到着地</span> <strong id="ticket-museum">---</strong></p>
+            <p><span>滞在時間</span> <strong id="ticket-time">---</strong></p>
+          </div>
+          <div id="ticket-impression-wrap" class="hidden">
+            <div class="ticket-divider"></div>
+            <p class="ticket-impression">心に残ったもの<br><strong id="ticket-impression">---</strong></p>
+          </div>
+          <div class="ticket-divider"></div>
+          <p class="ticket-message">日常へ戻ります。お気をつけて。</p>
+          <button id="btn-return-reality" class="btn-black btn-block">扉を閉める</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================
+         設計室（Workshop）
+         ==================================== -->
+    <section id="screen-workshop" class="screen">
+      <header class="screen-header">
+        <h2>美術館の設計室</h2>
+        <p class="hint">ここは、あなただけの美術館を建築する場所。<br>コンセプトを決め、AIと共に静寂の空間を描き出します。</p>
+        <p class="status-message" id="workshop-status"></p>
+      </header>
+      
+      <div class="workshop-tabs">
+        <button id="tab-btn-build" class="tab-btn active" data-tab="build">新規設計</button>
+        <button id="tab-btn-library" class="tab-btn" data-tab="library">所有する美術館</button>
+        <button id="tab-btn-tickets" class="tab-btn" data-tab="tickets">鑑賞の記録</button>
+      </div>
+
+      <!-- [タブ] 新規設計 -->
+      <div id="tab-build" class="tab-content active">
+        
+        <div class="action-footer text-right" style="margin-top: 0; margin-bottom: 1.5rem; text-align: right;">
+          <button id="btn-random-design" class="btn-secondary btn-with-icon" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+            <svg class="icon-quiet" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 2 L14 8 L8 14 L2 8 Z"/>
+              <circle cx="8" cy="8" r="1.5"/>
+            </svg>
+            <span>偶然に任せる</span>
+          </button>
+        </div>
+
+        <div id="edit-mode-banner" class="hidden edit-banner">
+          <div class="edit-banner-content">
+            <h3>⚠️ 現在 <span id="edit-target-name"></span> を改修中</h3>
+          </div>
+          <button id="btn-cancel-edit" class="btn-black">改修を中止する</button>
+        </div>
+
+        <div class="workshop-step">
+          <h3 class="step-title"><span>Step 1</span> 空間のコンセプト</h3>
+          <div class="step-content">
+            <label>美術館名 <input type="text" id="ws-name" placeholder="例: 忘却の近代ギャラリー"></label>
+            <label>コンセプト・説明 <textarea id="ws-concept" rows="2" placeholder="例: 都市の喧騒から隔絶された、コンクリートと静寂の空間。"></textarea></label>
+            <label>立地・環境 <input type="text" id="ws-location" placeholder="例: 霧の深い山の奥、冷たい海を見下ろす崖、など"></label>
+          </div>
+        </div>
+
+        <div class="workshop-step">
+          <h3 class="step-title"><span>Step 2</span> 建築のディテール</h3>
+          <div class="step-content form-group-2col">
+            <label>建築様式 
+              <select id="ws-style">
+                <!-- 動的にJSから構築されます -->
+              </select>
+            </label>
+            <label>設計士 <input type="text" id="ws-architect" placeholder="あなたの名前"></label>
+            <label>施工会社（架空の設定）
+              <select id="ws-builder">
+                <option value="星空建築株式会社">星空建築株式会社</option>
+                <option value="重工建設">重工建設</option>
+                <option value="水脈アーキテクチャ">水脈アーキテクチャ</option>
+                <option value="記憶の修復工房">記憶の修復工房</option>
+              </select>
+            </label>
+            <label>敷地面積 <input type="text" id="ws-area" value="3,200㎡"></label>
+          </div>
+        </div>
+
+        <div class="workshop-step">
+          <h3 class="step-title"><span>Step 3</span> 展示される作品</h3>
+          <div class="step-content">
+            <label>アーティスト像 <input type="text" id="ws-artist" placeholder="例: 1960年代パリの孤独な彫刻家、など"></label>
+            <label>作品のトーン（補助的な雰囲気の指定） <input type="text" id="ws-art-style" placeholder="例: 暗い青を基調とした抽象画、油彩"></label>
+            <label>画風の傾向（メインの方向性）
+              <select id="ws-art-style-category">
+                <!-- 動的にJSから構築されます -->
+              </select>
+            </label>
+            <label>展示室の数 <select id="ws-rooms"></select></label>
+          </div>
+        </div>
+
+        <div class="workshop-step">
+          <h3 class="step-title"><span>Step 4</span> 付帯設備と記念品</h3>
+          <div class="step-content">
+            <div class="checkbox-group">
+              <label class="checkbox-label"><input type="checkbox" id="ws-has-cafe" checked> 併設カフェを配置する</label>
+            </div>
+            <label id="wrap-cafe-menu">おすすめメニュー <input type="text" id="ws-cafe-menu" placeholder="例: 真夜中のブラックコーヒー"></label>
+            
+            <div id="unlockable-facilities" class="checkbox-group mt-3">
+              <label id="wrap-shop" class="checkbox-label hidden"><input type="checkbox" id="ws-has-shop"> ミュージアムショップ</label>
+              <label id="wrap-garden" class="checkbox-label hidden"><input type="checkbox" id="ws-has-garden"> 外部空間（中庭）</label>
+              <label id="wrap-roof" class="checkbox-label hidden"><input type="checkbox" id="ws-has-roof"> 屋上テラス</label>
+            </div>
+            
+            <hr class="step-divider">
+            
+            <div class="checkbox-group">
+              <label class="checkbox-label"><input type="checkbox" id="ws-has-custom-ticket"> この美術館専用の半券（チケット）をデザインする</label>
+            </div>
+
+            <div id="ws-ticket-design-block" class="hidden mt-3">
+              <h4>半券デザイン用プロンプト</h4>
+              <div class="prompt-box">
+                <textarea id="ws-ticket-prompt-text" readonly>(プロンプト生成後に表示されます)</textarea>
+                <div class="prompt-box-actions">
+                  <button type="button" id="btn-copy-ticket-prompt" class="btn-prompt-action btn-copy btn-with-icon">
+                    <svg class="icon-quiet" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="3" y="3" width="9" height="11" rx="0.5"/>
+                      <path d="M5.5 3 V1.5 a0.5 0.5 0 0 1 0.5 -0.5 H13 a0.5 0.5 0 0 1 0.5 0.5 V12.5"/>
+                    </svg>
+                    <span>写し取る</span>
+                  </button>
+                  <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" class="btn-prompt-action btn-chatgpt btn-with-icon">
+                    <svg class="icon-quiet" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M6 3 H3 V13 H13 V10"/>
+                      <path d="M9 3 H13 V7"/>
+                      <path d="M13 3 L8 8"/>
+                    </svg>
+                    <span>外部の対話AIを呼ぶ</span>
+                  </a>
+                </div>
+              </div>
+              <label class="file-upload mt-2">
+                生成した半券画像をアップロード
+                <input type="file" id="ws-ticket-image-input" accept="image/*">
+              </label>
+              <img id="ws-ticket-preview" class="preview-img hidden" alt="半券プレビュー">
+            </div>
+          </div>
+        </div>
+        
+        <div class="action-footer text-center">
+          <button id="btn-generate-prompts" class="btn-primary btn-large">AI用プロンプトを一括生成する</button>
+        </div>
+
+        <div id="ws-prompts-output" class="hidden">
+          <div class="screen-header mt-4">
+            <h3>プロンプトの出力結果</h3>
+            <p class="hint">これらをコピーしてAIで画像を生成し、当てはめてください。</p>
+          </div>
+          
+          <div id="prompts-container"></div>
+          
+          <div class="action-footer text-center">
+            <button id="btn-register-museum" class="btn-primary btn-large" disabled>図鑑に登録する</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- [タブ] 所有する美術館 -->
+      <div id="tab-library" class="tab-content">
+        <div id="library-museums" class="card-grid"></div>
+        <div class="library-actions">
+          <p class="hint">
+            誰かから受け取った招待状を、ここで開封します。<br>
+            封を切ると、その美術館はあなたの所有する美術館に静かに加わります。
+          </p>
+          <div class="flex-actions">
+            <label class="file-upload">
+              封を切る（.museum ファイルを選ぶ）
+              <input type="file" id="import-pack" accept=".museum,.json">
+            </label>
+            <button id="btn-export-all" class="btn-secondary">自分用にすべて書き出す</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- [タブ] 鑑賞の記録 -->
+      <div id="tab-tickets" class="tab-content">
+        <p class="hint text-center" id="tickets-status">— 半券は古いものから自然に失われていきます。</p>
+        <div id="ticket-stack-container">
+          <div id="ticket-stack"></div>
+          <p id="ticket-empty-message" class="hint hidden text-center mt-4">
+            まだ、どこにも訪れていません。
+          </p>
+        </div>
+      </div>
+      
+      <div class="screen-footer">
+        <button id="btn-back-to-title" class="btn-secondary">エントランスに戻る</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ====================================
+       オーバーレイ UI 群
+       ==================================== -->
+  <div id="activity-overlay" class="overlay hidden">
+    <div id="activity-content-wrapper">
+      <div id="activity-image-container">
+        <div id="activity-image"></div>
+      </div>
+      <div id="activity-text" class="vertical-text">
+        <h3 id="activity-title"></h3>
+        <p id="activity-author" class="hidden"></p>
+        <p id="activity-description"></p>
+        <a id="activity-link" href="#" target="_blank" class="hidden">詳細を見る ↗</a>
+      </div>
+    </div>
+    <button id="btn-activity-skip">一歩下がる</button>
+  </div>
+
+  <div id="ticket-viewer-overlay" class="hidden">
+    <div id="ticket-viewer-inner"></div>
+    <button id="btn-close-ticket-viewer">束に戻す</button>
+  </div>
+
+  <!-- ====================================
+       美術館を贈るには／受け取るには
+       ==================================== -->
+  <div id="etiquette-overlay" class="hidden">
+    <div class="terms-inner">
+      <h2>美術館の贈り方と受け取り方</h2>
+
+      <section class="terms-section">
+        <h3>美術館を贈るには</h3>
+        <p>
+          設計室の「所有する美術館」から、贈りたい美術館のカードにある
+          「招待状として綴じる」を選んでください。
+          一通の招待状（.museum ファイル）が、あなたの手元に綴じられます。
+        </p>
+        <p>
+          綴じられた招待状は、メール、メッセンジャー、AirDrop など、
+          どのような届け方でも構いません。
+          相手が静かに受け取れる方法を選んでください。
+        </p>
+      </section>
+
+      <section class="terms-section">
+        <h3>X (Twitter) で世界に配る</h3>
+        <p>
+          「ポスターを発行する」を選ぶと、あなたの美術館を美しく描いた
+          一枚の画像が生成されます。<br>
+          この画像と、あなたがAIで生成した空間の画像を一緒にXに投稿することで、
+          まだ見ぬ誰かにあなたの世界観を届けることができます。
+        </p>
+      </section>
+
+      <section class="terms-section">
+        <h3>美術館を受け取るには</h3>
+        <p>
+          設計室の「所有する美術館」の下にある「封を切る」から、
+          受け取った .museum ファイルを選んでください。
+          その美術館は、あなたの所有する美術館に静かに加わります。
+        </p>
+      </section>
+
+      <button id="btn-close-etiquette" class="btn-secondary btn-block">扉を閉じる</button>
+    </div>
+  </div>
+
+  <!-- ====================================
+       ポスター自動生成（シェア）オーバーレイ
+       ==================================== -->
+  <div id="share-overlay" class="hidden">
+    <div class="terms-inner share-inner" style="max-width: 700px;">
+      <h2>招待状の完成</h2>
+      <p class="hint text-center">
+        あなたの美術館を案内するための、一枚のポスターが描き出されました。<br>
+        この画像を保存し、あなたがAIで描いた空間の写真とともに、世界へ配りましょう。
+      </p>
+      
+      <div class="poster-preview-container mt-3" style="text-align: center;">
+        <canvas id="poster-canvas" width="1200" height="630" class="hidden"></canvas>
+        <img id="poster-preview-img" alt="招待状ポスター" style="max-width: 100%; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333;">
+      </div>
+      
+      <div class="share-actions mt-4 flex-actions" style="justify-content: center; gap: 1.5rem;">
+        <a id="btn-download-poster" download="invitation.jpg" class="btn-primary btn-with-icon" style="text-decoration: none;">
+          <svg class="icon-quiet" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 12 L8 2 M5 9 L8 12 L11 9 M3 14 H13" />
+          </svg>
+          <span>画像を保存する</span>
+        </a>
+        <button id="btn-share-twitter" class="btn-black btn-with-icon">
+          <svg class="icon-quiet" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M12.6.75h2.41l-5.28 6.04 6.2 8.18h-4.85l-3.8-4.97-4.35 4.97H.5l5.65-6.46L.18.75h5l3.43 4.54L12.6.75zm-1.12 12.8h1.34L3.84 2.1H2.4l9.08 11.45z"/>
+          </svg>
+          <span>X (Twitter) で配る</span>
+        </button>
+      </div>
+      
+      <p id="share-guide-text" class="hint text-center mt-3 hidden" style="color: var(--accent);">
+        案内文をコピーしました。<br>Xの投稿画面でペーストし、保存した画像を添付してください。
+      </p>
+
+      <button id="btn-close-share" class="btn-secondary btn-block mt-4">扉を閉じる</button>
+    </div>
+  </div>
+
+  <!-- ====================================
+       利用規約
+       ==================================== -->
+  <div id="terms-overlay" class="hidden">
+    <div class="terms-inner">
+      <h2>この美術館について</h2>
+      <section class="terms-section">
+        <h3>作者と権利</h3>
+        <p>本アプリケーション「地図にない美術館」の著作権は、すべて作者 [松田慶光] に帰属します。</p>
+      </section>
+      <button id="btn-close-terms" class="btn-secondary btn-block">扉を閉じる</button>
+    </div>
+  </div>
+
+  <!-- ====================================
+       招待状の作法ガイド
+       ==================================== -->
+  <div id="invitation-guide-overlay" class="hidden">
+    <div class="invitation-guide-inner terms-inner">
+      <h2 id="invitation-guide-title">招待状が綴じられました</h2>
+      <p id="invitation-guide-body" class="invitation-guide-body hint" style="white-space: pre-wrap; text-align: center; line-height: 2.2;"></p>
+      <button id="btn-close-invitation-guide" class="btn-secondary btn-block mt-4">扉を閉じる</button>
+    </div>
+  </div>
+
+  <button id="btn-next-to-journey" class="hidden"></button>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
+--- END OF FILE index.html ---
