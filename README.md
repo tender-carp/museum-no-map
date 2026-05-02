@@ -25,7 +25,7 @@
 
 ## 使い方 / How to use
 
-👉 **[今すぐ体験する / Visit now](https://yoshimitsuoct28-debug.github.io/museum-no-map/)**
+👉 **[今すぐ体験する / Visit now](https://tender-carp.github.io/museum-no-map/)**
 
 ---
 
