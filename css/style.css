@@ -1328,23 +1328,3 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-d
     min-width: 100%;
   }
 }
-/* スマホ画面で横スクロール（スワイプ）できるようにする */
-@media (max-width: 768px) {
-  #activity-overlay.mode-space #activity-image-container {
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch; /* スムーズスクロール */
-    overscroll-behavior-x: none; /* スワイプによるブラウザバックを防止 */
-    scrollbar-width: none; /* Firefox用スクロールバー非表示 */
-  }
-  #activity-overlay.mode-space #activity-image-container::-webkit-scrollbar {
-    display: none; /* Chrome/Safari用スクロールバー非表示 */
-  }
-  #activity-overlay.mode-space #activity-image {
-    width: 250vw; /* 実際の画面幅の2.5倍に広げて、画像を横に伸ばす */
-    height: 100%;
-    /* スワイプ操作と競合するズームアニメーションを停止 */
-    animation: none !important; 
-    transform: none !important;
-  }
-}
