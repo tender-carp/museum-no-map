@@ -137,7 +137,9 @@ button:disabled { opacity: 0.3; cursor: not-allowed; }
   justify-content: center;
   align-items: center;
   text-align: center;
-  margin-top: -3rem;
+  min-height: 100vh;
+  margin: -2rem -1.5rem -5rem;   /* #app の padding を打ち消す */
+  padding: 2rem 1.5rem;
 }
 .title-container {
   display: flex;
