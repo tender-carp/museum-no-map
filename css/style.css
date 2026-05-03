@@ -1328,3 +1328,40 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-d
     min-width: 100%;
   }
 }
+/* ==========================================
+   スマホ向けの作品（Artwork）表示レイアウト修正
+   ========================================== */
+@media (max-width: 768px) {
+  /* 全体の枠を、画面からはみ出さない範囲で可変にする */
+  #activity-overlay.mode-artwork #activity-content-wrapper {
+    flex-direction: column;
+    height: auto;
+    max-height: 90vh;
+    gap: 1.5rem;
+    width: 90%;
+  }
+  
+  /* どんな状況でも、画面の高さの約45%を「画像エリア」として強制的に確保する */
+  #activity-overlay.mode-artwork #activity-image-container {
+    width: 100%;
+    height: 45vh;
+    flex: none; /* 潰れるのを防ぐ */
+  }
+
+  /* 作品画像が切れないように全体を収める */
+  #activity-overlay.mode-artwork #activity-image {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+  }
+
+  /* 下半分のテキストエリア。長すぎる場合はスクロールできるようにする */
+  #activity-overlay.mode-artwork #activity-text {
+    writing-mode: horizontal-tb;
+    width: 100%;
+    max-height: 35vh; 
+    overflow-y: auto; /* 指で上下になぞって読めるようにする */
+    padding: 0 0.5rem;
+    flex: none;
+  }
+}
