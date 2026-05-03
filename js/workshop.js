@@ -24,48 +24,233 @@ let magneticHandler = null;
 let wsInitialized = false;
 
 // =================================================================
-// ランダム設計用データセット
+// ランダム設計用パーツリスト（3トーン構造）
+// 各トーン10要素ずつ。トーン内で「自然系・都市系・装飾系」などを混ぜる。
 // =================================================================
-const RANDOM_DATA = {
-  names: [
-    "忘却の近代ギャラリー", "砂の底の美術館", "白夜の彫刻館", "終末時計のホール", "記憶の沈殿所",
-    "雨音のパビリオン", "深海光のミュージアム", "廃星の展示室", "境界線の美術館", "無音のアトリウム"
-  ],
-  concepts: [
-    "都市の喧騒から隔絶された、コンクリートと静寂の空間。",
-    "水没したかつての文明を思わせる、冷たく青い光に満ちた場所。",
-    "果てしない砂漠の中にポツンと建つ、時間を忘れるための箱。",
-    "霧に包まれた森林の奥深く。木々と建築が一体化した迷宮。",
-    "全てが白で統一された、重力を感じさせない無響室のような空間。",
-    "古い工場跡を改装した、鉄の匂いと自然光が交差するアトリエ。",
-    "永遠に夕暮れが続く、オレンジ色の光と長い影の美術館。",
-    "幾何学的な構造が無限に続く、論理と錯覚の迷宮。",
-    "荒涼とした雪原に建つ、温かい炎と氷のコントラスト。",
-    "星空をそのまま映し出すガラス張りの天井。宇宙と繋がる場所。"
-  ],
-  locations: [
-    "霧の深い山の奥", "冷たい海を見下ろす崖", "廃墟となった都市の中心", "終わりのない砂漠の真ん中", "静かな湖の底",
-    "雪に覆われた針葉樹林", "誰も知らない地下空洞", "大気圏の境界、浮遊する島", "雨が降り続ける無人の街", "風の強い荒野"
-  ],
-  architects: [
-    "名もなき設計士", "アメリア・ヴォイド", "ジョン・ドウ", "灰の建築家", "K",
-    "忘却のアルチザン", "機械知性 M-7", "エル・ミズ", "空想の旅人", "沈黙の観測者"
-  ],
-  builders: [
-    "星空建築株式会社", "重工建設", "水脈アーキテクチャ", "記憶の修復工房"
-  ],
-  artists: [
-    "1960年代パリの孤独な彫刻家", "正体不明のデジタルアーティスト", "記憶を失った天才画家", "未来から来た機械の芸術家", "深い森で隠遁生活を送る木工職人",
-    "光と影だけを切り取る盲目の写真家", "廃材から命を紡ぐジャンククリエイター", "夢の中の景色を描き続ける少女", "幾何学模様に魅入られた数学者", "感情を持たないAI"
-  ],
-  artStyles: [
-    "暗い青を基調とした抽象画、油彩", "鋭い金属線の彫刻、ミニマル", "ぼんやりとした光のインスタレーション", "巨大なモノクロームの風景写真", "不規則に滴るインクの軌跡、水彩",
-    "朽ちた木とガラスの立体作品", "燃えるような赤と黒の表現主義", "デジタルノイズとバグアート", "極限まで削ぎ落ppedされた白いキャンバス", "繊細な和紙と墨によるドローイング"
-  ]
+const RANDOM_PARTS = {
+  // -----------------------------------------------------------
+  // bright（明るい・優しい・開かれた）
+  // -----------------------------------------------------------
+  bright: {
+    names: [
+      "陽だまりの絵本館",
+      "朝露の草原パビリオン",
+      "海風が吹き抜ける白い邸宅",
+      "丘の上の小さな図書館",
+      "都市の高層ホワイトキューブ",
+      "湖上に浮かぶ幾何学ギャラリー",
+      "ガラスの空中回廊",
+      "天空のガラス温室",
+      "花咲く中庭の回廊",
+      "光と紙の小さな美術館"
+    ],
+    concepts: [
+      "光と木の温もりにあふれた、心が安らぐ優しい空間。",
+      "透明なテント構造で、朝もやと柔らかな光だけを閉じ込めた空間。",
+      "真っ白な壁と青い海。風が心地よく通り抜ける開かれた空間。",
+      "古い木の床と本棚の匂い。窓辺に午後の光が静かに差し込む空間。",
+      "一切の無駄を排した、純白で無機質な極限のギャラリー空間。",
+      "水面に浮かぶ、直線と平面だけで構成された理知的な空間。",
+      "ガラスの床と空中の通路。都市の上空に浮かぶ静かな展示空間。",
+      "壁も天井もガラス張りで、植物と自然光が調和した生命力あふれる空間。",
+      "秘密の花園を囲むように造られた、装飾的で優美な回廊。",
+      "和紙と木と金箔が、柔らかな光に包まれて輝く小さな空間。"
+    ],
+    locations: [
+      "見晴らしの良い丘の上",
+      "穏やかな地中海の海辺",
+      "朝露に濡れた広大な草原",
+      "雲海を見下ろす山の頂",
+      "大都市の摩天楼、最上階",
+      "空気が澄み切った高山の頂",
+      "風の通り抜ける港町の埠頭",
+      "忘れられた貴族の広大な庭園",
+      "桜並木に囲まれた静かな丘",
+      "陽光の差し込む北欧の小さな村"
+    ],
+    artists: [
+      "かつて絵本作家だった老人",
+      "光を追い求める印象派の画家",
+      "植物と対話する植物学者",
+      "朝の光を記録する水彩画家",
+      "現代都市を解構築するグラフィックデザイナー",
+      "数学と図形に魅入られた構成主義者",
+      "色彩理論を追い求める抽象画家",
+      "ノスタルジーを描くイラストレーター",
+      "優美な曲線を愛する装飾画家",
+      "和紙と顔料を用いる現代日本画家"
+    ],
+    architectureStyles: [
+      "warm daylight & wood",
+      "urban high-rise gallery",
+      "modern glass and steel",
+      "mediterranean villa"
+    ]
+  },
+
+  // -----------------------------------------------------------
+  // middle（中庸・洗練・落ち着き）
+  // -----------------------------------------------------------
+  middle: {
+    names: [
+      "記憶の古い木造校舎",
+      "静寂の書院造ギャラリー",
+      "苔むす石庭のパビリオン",
+      "インダストリアル・ロフト",
+      "風の通る海上プラットフォーム",
+      "鉄骨と硝子の交差する展示室",
+      "星降る夜の天文ギャラリー",
+      "砂漠のオアシス・パビリオン",
+      "無限の鏡面ラビリンス",
+      "古都の路地にひらく蔵"
+    ],
+    concepts: [
+      "歩くたびに床が鳴る、どこか懐かしくセピア色に染まった空間。",
+      "枯山水の庭を望む、研ぎ澄まされた静けさを持つ現代和風の空間。",
+      "苔と石と木が、光と影の境界線の上で静かに息づく空間。",
+      "むき出しの鉄骨とレンガ。無骨な力強さと現代アートが交差する空間。",
+      "海の上に組まれた鉄と木の足場。自然の風を受けて動く空間。",
+      "鉄骨と硝子が幾何学に交差し、光が斜めに差し込む静かな展示室。",
+      "巨大な天窓から満天の星空を仰ぎ見る、宇宙と繋がる静寂のドーム。",
+      "乾いた土壁と直線的なモダンデザインが融合した、果てしない砂の上の箱。",
+      "壁面が全て鏡で覆われ、空間と視覚が無限に拡張していく迷宮。",
+      "白壁の蔵を改装した、古いものと新しいものが穏やかに同居する空間。"
+    ],
+    locations: [
+      "蝉時雨が降る、遠い田舎の廃校",
+      "苔むした静かな古都の路地裏",
+      "枯山水の庭を持つ寺の裏手",
+      "雨の降るダウンタウンの古い倉庫街",
+      "凪いだ海の上にぽつんと浮かぶ人工島",
+      "夕暮れに染まる工業地帯の高架下",
+      "白夜が続く果てしない氷原",
+      "どこまでも続く砂丘の真ん中",
+      "月明かりに照らされた湖畔の小道",
+      "霧に包まれた中世の石畳の通り"
+    ],
+    artists: [
+      "余白の美を追求する現代日本画家",
+      "枯れた花だけを描き続ける老画家",
+      "墨と紙だけで世界を描く水墨画家",
+      "風と重力で動くキネティック彫刻家",
+      "モノクロームの世界だけを撮る写真家",
+      "鉄と錆を素材にする現代彫刻家",
+      "光と水のインスタレーション作家",
+      "夢と現実の境界を曖昧にするシュルレアリスト",
+      "大量消費社会を皮肉るポップアーティスト",
+      "古い書物のページを切り貼りするコラージュ作家"
+    ],
+    architectureStyles: [
+      "industrial warehouse",
+      "japanese shoin-zukuri",
+      "traditional japanese wood",
+      "east-asian palace"
+    ]
+  },
+
+  // -----------------------------------------------------------
+  // quiet（しっとり・深い・静謐）
+  // -----------------------------------------------------------
+  quiet: {
+    names: [
+      "忘却のコンクリート要塞",
+      "深海の沈没船ミュージアム",
+      "雨音の響くゴシック大聖堂",
+      "夜の石窟回廊",
+      "時の止まった洋館",
+      "雪に埋もれた終着駅",
+      "砂の底の美術館",
+      "廃墟となった天文台",
+      "霧に閉ざされた旧鉱山",
+      "苔と影に沈む地下聖堂"
+    ],
+    concepts: [
+      "都市の喧騒から隔絶された、冷たいコンクリートと圧倒的な静寂の空間。",
+      "水没したかつての豪華客船。冷たく青い光だけが揺らめく水底の空間。",
+      "ステンドグラスから鈍い光が差し込む、祈りと懺悔のための高い天井。",
+      "自然の岩肌をくり抜いて作られた、冷たく湿った地下の遺跡回廊。",
+      "何百年も人が入っていないような、分厚い埃と静寂に包まれたクラシックな部屋。",
+      "誰も来ないプラットホーム。鉄骨とガラスが冷たい風を遮るだけの空間。",
+      "風化した砂の中に半ば埋もれた、忘れられた展示室。",
+      "観測をやめて久しい、星空に向けたままの巨大な望遠鏡が静かに眠る空間。",
+      "霧と苔が、放棄されたトロッコと坑道を静かに包み込む空間。",
+      "地下深く、蝋燭の灯りだけが石壁を照らす祈りのための空間。"
+    ],
+    locations: [
+      "深く暗い青に沈んだ海の底",
+      "終わらない雨が降り続く古い街",
+      "誰も知らない地下空洞の奥深く",
+      "茨とツタに覆われた暗い森の奥",
+      "猛吹雪が吹き荒れる白い荒野",
+      "濃い霧に包まれた山奥の斜面",
+      "見捨てられた炭鉱町の外れ",
+      "永遠に夜が続く惑星の縁",
+      "潮の引いた岩礁に取り残された廃灯台",
+      "氷河の裂け目にひらく深い洞窟"
+    ],
+    artists: [
+      "荒々しい筆致を持つ抽象表現主義者",
+      "夢と現実の境界を曖昧にするシュルレアリスト",
+      "宗教画と死生観を描く古典画家",
+      "神話と土着信仰を彫る彫刻家",
+      "静物画だけを描き続けた忘れられた画家",
+      "孤独と空虚をキャンバスにぶつける表現主義者",
+      "廃墟だけを描き続ける油彩画家",
+      "深海生物を細密に描く生物学者画家",
+      "黒と灰色だけで風景を描く銅版画家",
+      "亡き人の記憶を蝋で形にする彫刻家"
+    ],
+    architectureStyles: [
+      "brutalist concrete",
+      "gothic cathedral",
+      "classic renaissance mansion",
+      "ruins and remnants"
+    ]
+  },
+
+  // -----------------------------------------------------------
+  // shared（トーン非依存の共通要素）
+  // -----------------------------------------------------------
+  shared: {
+    architectsMeta: [
+      "名もなき設計士", "アメリア・ヴォイド", "ジョン・ドウ", "灰の建築家", "K",
+      "忘却のアルチザン", "機械知性 M-7", "エル・ミズ", "空想の旅人", "沈黙の観測者"
+    ],
+    builders: [
+      "星空建築株式会社", "重工建設", "水脈アーキテクチャ", "記憶の修復工房", "幻影ゼネコン"
+    ]
+  }
 };
 
 function getRandomItem(array) {
   return array[Math.floor(Math.random() * array.length)];
+}
+
+// 1セット分のランダム抽出（同じトーンから引き、ごくまれに1要素だけ別トーンの肌触りを混ぜる）
+function pickRandomMuseumSet() {
+  const tones = ["bright", "middle", "quiet"];
+  const mainTone = tones[Math.floor(Math.random() * tones.length)];
+  const group = RANDOM_PARTS[mainTone];
+  const shared = RANDOM_PARTS.shared;
+
+  // 10%の確率で、アーティスト像だけ別のトーンから引く（偶発的な揺らぎ）
+  let artistGroup = group;
+  if (Math.random() < 0.10) {
+    const others = tones.filter(t => t !== mainTone);
+    const sub = others[Math.floor(Math.random() * others.length)];
+    artistGroup = RANDOM_PARTS[sub];
+  }
+
+  return {
+    tone: mainTone,
+    name: getRandomItem(group.names),
+    concept: getRandomItem(group.concepts),
+    location: getRandomItem(group.locations),
+    artist: getRandomItem(artistGroup.artists),
+    architecture: getRandomItem(group.architectureStyles),
+    architectMeta: getRandomItem(shared.architectsMeta),
+    builder: getRandomItem(shared.builders)
+  };
 }
 
 // =================================================================
@@ -77,12 +262,12 @@ function buildArtStyleCategoryOptions(selectEl, currentValue = "") {
   
   const optNone = document.createElement("option");
   optNone.value = "";
-  optNone.textContent = "指定なし（展示室のテーマに合わせる）";
+  optNone.textContent = "指定なし(展示室のテーマに合わせる)";
   selectEl.appendChild(optNone);
   
   const optRandom = document.createElement("option");
   optRandom.value = "random";
-  optRandom.textContent = "ランダム（建築様式に合った画風を自動選択）";
+  optRandom.textContent = "ランダム(建築様式に合った画風を自動選択)";
   selectEl.appendChild(optRandom);
   
   const optSep = document.createElement("option");
@@ -265,12 +450,12 @@ function importableToMuseum(museum) {
 }
 
 // =================================================================
-// 🎨 ポスター画像（Canvas）自動生成ロジック
+// ポスター画像(Canvas)自動生成ロジック
 // =================================================================
 function loadImageObj(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = "Anonymous"; // 外部URL対応用
+    img.crossOrigin = "Anonymous";
     img.onload = () => resolve(img);
     img.onerror = (e) => reject(e);
     img.src = src;
@@ -332,11 +517,9 @@ async function generateAndShowPoster(museum) {
   const CW = 1200;
   const CH = 630;
   
-  // 背景黒塗り
   ctx.fillStyle = "#0d0d0d";
   ctx.fillRect(0, 0, CW, CH);
 
-  // カバー画像（第1展示室などの画像）
   const coverBlob = museum.phases?.[0]?.image || museum.phases?.[1]?.image;
   if (coverBlob) {
     try {
@@ -346,7 +529,6 @@ async function generateAndShowPoster(museum) {
     } catch (e) { console.error("Cover image load failed"); }
   }
 
-  // 暗くするグラデーション（左から右へ）
   const grad = ctx.createLinearGradient(0, 0, CW, 0);
   grad.addColorStop(0, "rgba(0,0,0,0.95)");
   grad.addColorStop(0.5, "rgba(0,0,0,0.7)");
@@ -357,7 +539,6 @@ async function generateAndShowPoster(museum) {
   const marginLeft = 100;
   let currentY = 160;
 
-  // 美術館名
   ctx.fillStyle = "#d4b574"; 
   ctx.font = "300 64px 'Noto Serif JP', serif";
   ctx.shadowColor = "rgba(0,0,0,0.8)";
@@ -383,7 +564,6 @@ async function generateAndShowPoster(museum) {
     fillTextWrap(ctx, museum.concept, marginLeft, currentY, 600, 44);
   }
 
-  // 右下のロゴ・クレジット
   ctx.fillStyle = "rgba(255,255,255,0.4)";
   ctx.font = "300 20px 'Noto Sans JP', sans-serif";
   ctx.textAlign = "right";
@@ -403,40 +583,32 @@ async function generateAndShowPoster(museum) {
     playSE("click");
     const tweetText = `地図にない美術館を、ひとつ建てました。\n\n『${museum.name || "無名の空間"}』\n環境：${museum.location || "不明"}\n\nブラウザで静かに開く、地図にない場所です。\nhttps://yoshimitsuoct28-debug.github.io/museum-no-map/\n\n#地図にない美術館 #個人開発 #Webアプリ`;
     
-    // Canvasから画像Blobを取得
     const canvas = document.getElementById("poster-canvas");
     
     try {
-      // 画像をクリップボードへコピー（ClipboardItem API）
       const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
       
       if (navigator.clipboard && window.ClipboardItem) {
         await navigator.clipboard.write([
           new ClipboardItem({ "image/png": blob })
         ]);
-        // 画像コピー成功 → テキストは別途案内
         guideText.classList.remove("hidden");
         guideText.innerHTML = 
           "招待状の画像をクリップボードに写しました。<br>" +
-          "X の投稿画面で <strong>Ctrl+V</strong>（スマホは長押し→貼り付け）で添付してください。<br>" +
+          "X の投稿画面で <strong>Ctrl+V</strong>(スマホは長押し→貼り付け)で添付してください。<br>" +
           "本文は下のボタンからコピーできます。";
       } else {
-        // ClipboardItem 非対応ブラウザ（古いSafariなど）
         guideText.classList.remove("hidden");
         guideText.innerHTML = 
           "お使いのブラウザでは画像の自動コピーに対応していません。<br>" +
           "「画像を保存する」ボタンから保存し、X の投稿画面で添付してください。";
       }
       
-      // X投稿画面を開く
       const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
       window.open(twitterUrl, "_blank");
     } catch (err) {
       console.error("画像コピー失敗", err);
-      // フォールバック：テキストだけコピー
-      try {
-        await navigator.clipboard.writeText(tweetText);
-      } catch(_) {}
+      try { await navigator.clipboard.writeText(tweetText); } catch(_) {}
       guideText.classList.remove("hidden");
       guideText.innerHTML = 
         "画像の自動コピーに失敗しました。<br>" +
@@ -495,36 +667,34 @@ export async function initWorkshop() {
 
   if(!wsInitialized) {
     
+    // トーンの揃った1セットをまとめて引く「偶然に任せる」
     const btnRandom = document.getElementById("btn-random-design");
     if (btnRandom) {
       btnRandom.addEventListener("click", () => {
         playHaptic("light");
         
-        document.getElementById("ws-name").value = getRandomItem(RANDOM_DATA.names);
-        document.getElementById("ws-concept").value = getRandomItem(RANDOM_DATA.concepts);
-        document.getElementById("ws-location").value = getRandomItem(RANDOM_DATA.locations);
+        const setData = pickRandomMuseumSet();
         
-        const archKeys = Object.keys(ARCHITECTURE_STYLES);
-        const randomArch = archKeys[Math.floor(Math.random() * archKeys.length)];
-        document.getElementById("ws-style").value = randomArch;
-        
-        document.getElementById("ws-architect").value = getRandomItem(RANDOM_DATA.architects);
-        document.getElementById("ws-builder").value = getRandomItem(RANDOM_DATA.builders);
+        document.getElementById("ws-name").value = setData.name;
+        document.getElementById("ws-concept").value = setData.concept;
+        document.getElementById("ws-location").value = setData.location;
+        document.getElementById("ws-style").value = setData.architecture;
+        document.getElementById("ws-architect").value = setData.architectMeta;
+        document.getElementById("ws-builder").value = setData.builder;
+        document.getElementById("ws-artist").value = setData.artist;
+        document.getElementById("ws-art-style").value = "";
         
         const randomArea = Math.floor(Math.random() * 9000 + 1000).toLocaleString() + "㎡";
         document.getElementById("ws-area").value = randomArea;
         
-        document.getElementById("ws-artist").value = getRandomItem(RANDOM_DATA.artists);
-        document.getElementById("ws-art-style").value = getRandomItem(RANDOM_DATA.artStyles);
-        
-        const pickedStyleKey = pickRandomArtStyleForArchitecture(randomArch);
+        const pickedStyleKey = pickRandomArtStyleForArchitecture(setData.architecture);
         const artStyleCategorySelect = document.getElementById("ws-art-style-category");
         if (artStyleCategorySelect) {
           artStyleCategorySelect.value = pickedStyleKey;
         }
         
         const roomOpts = document.getElementById("ws-rooms").options;
-        const randomRoomIndex = Math.floor(Math.random() * Math.min(roomOpts.length, 5)); 
+        const randomRoomIndex = Math.floor(Math.random() * Math.min(roomOpts.length, 5));
         document.getElementById("ws-rooms").selectedIndex = randomRoomIndex;
         
         const inputs = document.querySelectorAll("#tab-build input[type='text'], #tab-build textarea, #tab-build select");
@@ -572,7 +742,10 @@ export async function initWorkshop() {
         hasShop: document.getElementById("ws-has-shop")?.checked || false,
         hasGarden: document.getElementById("ws-has-garden")?.checked || false,
         hasRoof: document.getElementById("ws-has-roof")?.checked || false,
-        hasCustomTicket: document.getElementById("ws-has-custom-ticket")?.checked || false
+        hasCustomTicket: document.getElementById("ws-has-custom-ticket")?.checked || false,
+        guestbookUrl: document.getElementById("ws-has-guestbook")?.checked 
+                        ? document.getElementById("ws-guestbook-url").value.trim() 
+                        : null
       };
 
       const generatedData = generateMuseumPrompts(input);
@@ -591,6 +764,7 @@ export async function initWorkshop() {
           id: p.id, 
           title: p.title, 
           image: existingPhase ? existingPhase.image : null,
+          desc: existingPhase ? existingPhase.desc : "",
           artworks: p.id.startsWith("exhibition") 
                       ? (existingPhase && existingPhase.artworks 
                           ? existingPhase.artworks.map(a => ({ ...a })) 
@@ -648,7 +822,7 @@ export async function initWorkshop() {
 
       try {
         await saveCustomMuseum(currentDraft);
-        alert(currentEditId ? "美術館の改修が完了しました！（上書き保存）" : "図鑑に登録しました！");
+        alert(currentEditId ? "美術館の改修が完了しました!(上書き保存)" : "図鑑に登録しました!");
         resetWorkshopForm();
         document.querySelector('[data-tab="library"]').click();
       } catch (e) {
@@ -737,6 +911,19 @@ export async function initWorkshop() {
       reader.readAsText(file);
     });
 
+    const cbGuestbook = document.getElementById("ws-has-guestbook");
+    if (cbGuestbook) {
+      cbGuestbook.addEventListener("change", (e) => {
+        const block = document.getElementById("ws-guestbook-block");
+        if (!block) return;
+        if (e.target.checked) {
+          block.classList.remove("hidden");
+        } else {
+          block.classList.add("hidden");
+        }
+      });
+    }
+
     const cbCustomTicket = document.getElementById("ws-has-custom-ticket");
     if (cbCustomTicket) {
       cbCustomTicket.addEventListener("change", (e) => {
@@ -794,7 +981,6 @@ export async function initWorkshop() {
       });
     }
 
-    // ポスター生成モーダルの閉じるボタン
     const btnCloseShare = document.getElementById("btn-close-share");
     if(btnCloseShare) {
       btnCloseShare.addEventListener("click", () => {
@@ -805,7 +991,6 @@ export async function initWorkshop() {
       });
     }
 
-    // 招待状作法ガイドの閉じるボタン
     const btnCloseGuide = document.getElementById("btn-close-invitation-guide");
     if(btnCloseGuide) {
       btnCloseGuide.addEventListener("click", () => {
@@ -904,6 +1089,11 @@ function resetWorkshopForm() {
   const optGarden = document.getElementById("ws-has-garden"); if(optGarden) optGarden.checked = false;
   const optRoof = document.getElementById("ws-has-roof"); if(optRoof) optRoof.checked = false;
   
+  const cbGuestbook = document.getElementById("ws-has-guestbook");
+  if (cbGuestbook) cbGuestbook.checked = false;
+  const guestbookBlock = document.getElementById("ws-guestbook-block");
+  if (guestbookBlock) guestbookBlock.classList.add("hidden");
+
   const cbCustomTicket = document.getElementById("ws-has-custom-ticket");
   if (cbCustomTicket) cbCustomTicket.checked = false;
   const ticketBlock = document.getElementById("ws-ticket-design-block");
@@ -933,7 +1123,7 @@ function loadMuseumForEdit(museum) {
   document.getElementById("edit-mode-banner").classList.remove("hidden");
   document.getElementById("tab-build").classList.add("is-editing");
   document.getElementById("tab-btn-build").textContent = "⚠️ 改修中...";
-  document.getElementById("btn-register-museum").textContent = "改修を完了する（上書き保存）";
+  document.getElementById("btn-register-museum").textContent = "改修を完了する(上書き保存)";
 
   document.getElementById("ws-name").value = museum.name || "";
   document.getElementById("ws-concept").value = museum.concept || "";
@@ -971,6 +1161,14 @@ function loadMuseumForEdit(museum) {
   const optShop = document.getElementById("ws-has-shop"); if(optShop) optShop.checked = museum.hasShop || false;
   const optGarden = document.getElementById("ws-has-garden"); if(optGarden) optGarden.checked = museum.hasGarden || false;
   const optRoof = document.getElementById("ws-has-roof"); if(optRoof) optRoof.checked = museum.hasRoof || false;
+
+  if (museum.guestbookUrl) {
+    const cbGuestbook = document.getElementById("ws-has-guestbook");
+    if(cbGuestbook) cbGuestbook.checked = true;
+    const gbBlock = document.getElementById("ws-guestbook-block");
+    if(gbBlock) gbBlock.classList.remove("hidden");
+    document.getElementById("ws-guestbook-url").value = museum.guestbookUrl;
+  }
 
   if (museum.ticketDesign && museum.ticketDesign.image) {
     const cbCustomTicket = document.getElementById("ws-has-custom-ticket");
@@ -1034,10 +1232,22 @@ function renderPrompts(promptData) {
       </div>
       <label class="file-upload">空間画像を設定する<input type="file" accept="image/*" class="phase-img-input"></label>
       <img class="preview-img ${phaseDraft.image ? '' : 'hidden'}" alt="">
+      <label class="phase-desc-label" style="margin-top: 1.2rem; display: block; color: var(--text-soft); font-size: 0.9rem;">
+        この空間に添える言葉 <span style="color: var(--text-dim); font-size: 0.8rem;">(任意)</span>
+        <textarea class="phase-desc-input" rows="3" placeholder="画像を見ながら、もし言葉が浮かんだら。&#10;鑑賞中、この空間の脇に静かに添えられます。" style="margin-top: 0.5rem; font-family: inherit; line-height: 1.8;"></textarea>
+      </label>
     `;
     
     block.querySelector(".phase-prompt-text").value = p.text;
     if (previewSrc) block.querySelector(".preview-img").src = previewSrc;
+    
+    const descInput = block.querySelector(".phase-desc-input");
+    if (phaseDraft.desc) {
+      descInput.value = phaseDraft.desc;
+    }
+    descInput.addEventListener("input", (e) => {
+      phaseDraft.desc = e.target.value;
+    });
     
     block.querySelector(".btn-copy").addEventListener("click", async (e) => {
       const textarea = block.querySelector(".phase-prompt-text");
@@ -1083,18 +1293,15 @@ function renderPrompts(promptData) {
           return;
         }
 
-        if (!confirm(`「${p.title}」を削除しますか？\n（これ以降の展示室の番号は繰り上がり、画像などは保持されます）`)) return;
+        if (!confirm(`「${p.title}」を削除しますか?\n(これ以降の展示室の番号は繰り上がり、画像などは保持されます)`)) return;
 
-        // 部屋のプルダウンを減らす
         roomSelect.value = currentRooms - 1;
 
-        // データを削除する
         const phaseIndex = currentDraft.phases.findIndex(ph => ph.id === p.id);
         if (phaseIndex !== -1) {
           currentDraft.phases.splice(phaseIndex, 1);
         }
 
-        // 残った部屋の番号を振り直す
         let exCount = 1;
         currentDraft.phases.forEach(ph => {
           if (ph.id.startsWith("exhibition")) {
@@ -1104,7 +1311,6 @@ function renderPrompts(promptData) {
           }
         });
 
-        // UIを再生成する
         document.getElementById("btn-generate-prompts").click();
       });
     }
@@ -1424,7 +1630,7 @@ async function renderLibrary() {
       <h3>${escapeHtml(m.name)}</h3>
       <p style="font-size:0.8rem; color:#888;">設計: ${escapeHtml(m.architect)}</p>
       <div class="card-actions-row" style="display:flex; flex-direction:column; gap:0.6rem; margin-top:1.2rem; border-top:1px solid #333; padding-top:1rem;">
-        <button class="btn-primary btn-generate-poster" style="font-size:0.85rem; padding:0.6rem;">ポスター（画像）を発行する</button>
+        <button class="btn-primary btn-generate-poster" style="font-size:0.85rem; padding:0.6rem;">ポスター(画像)を発行する</button>
         <div style="display:flex; gap:0.5rem;">
           <button class="btn-secondary btn-edit-museum" style="flex:1; font-size:0.75rem; padding:0.4rem;">改修する</button>
           <button class="btn-secondary btn-bind-invitation" style="flex:1; font-size:0.75rem; padding:0.4rem;">招待状(.museum)</button>
@@ -1628,7 +1834,7 @@ function openTicketViewer(ticket, serialIndex) {
   }
   
   inner.querySelector(".btn-delete-ticket").addEventListener("click", async () => {
-    if (!confirm("この半券を破棄します。よろしいですか？")) return;
+    if (!confirm("この半券を破棄します。よろしいですか?")) return;
     await deleteTicket(ticket.id);
     closeTicketViewer();
     await renderTicketStack();
