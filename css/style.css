@@ -1329,39 +1329,51 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-d
   }
 }
 /* ==========================================
-   スマホ向けの作品（Artwork）表示レイアウト修正
+   スマホ向けの作品（Artwork）表示レイアウトの強制修正
    ========================================== */
 @media (max-width: 768px) {
-  /* 全体の枠を、画面からはみ出さない範囲で可変にする */
+  /* 枠全体を縦並びにし、高さを画面いっぱいに広げる */
   #activity-overlay.mode-artwork #activity-content-wrapper {
-    flex-direction: column;
-    height: auto;
-    max-height: 90vh;
-    gap: 1.5rem;
-    width: 90%;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    height: 90vh !important;
+    gap: 1rem !important;
   }
   
-  /* どんな状況でも、画面の高さの約45%を「画像エリア」として強制的に確保する */
+  /* 画像が入る箱の高さを、絶対に「画面の45%」分確保する */
   #activity-overlay.mode-artwork #activity-image-container {
-    width: 100%;
-    height: 45vh;
-    flex: none; /* 潰れるのを防ぐ */
+    display: block !important;
+    width: 100% !important;
+    height: 45vh !important;
+    min-height: 250px !important;
+    flex: none !important;
   }
 
-  /* 作品画像が切れないように全体を収める */
+  /* 作品画像の設定（見切れないように収める） */
   #activity-overlay.mode-artwork #activity-image {
-    width: 100%;
-    height: 100%;
-    background-size: contain;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-size: contain !important;
+    background-position: center bottom !important;
+    background-repeat: no-repeat !important;
   }
 
-  /* 下半分のテキストエリア。長すぎる場合はスクロールできるようにする */
+  /* 下半分のテキストエリア。文字が多い場合はスクロール可能に */
   #activity-overlay.mode-artwork #activity-text {
-    writing-mode: horizontal-tb;
-    width: 100%;
-    max-height: 35vh; 
-    overflow-y: auto; /* 指で上下になぞって読めるようにする */
-    padding: 0 0.5rem;
-    flex: none;
+    flex: none !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 40vh !important;
+    writing-mode: horizontal-tb !important;
+    overflow-y: auto !important;
+    padding: 0 1rem !important;
+    text-align: center !important;
+  }
+
+  /* スマホの時はタイトルの余白を調整 */
+  #activity-overlay.mode-artwork #activity-title {
+    margin: 0 0 0.5rem 0 !important;
   }
 }
