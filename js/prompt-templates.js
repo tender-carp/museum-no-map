@@ -1,5 +1,29 @@
-// js/prompt-templates.js
+// --- START OF FILE prompt-templates.js ---
 
+// =================================================================
+// 建築様式に応じたベースプロンプト（ここで全体の光と空気を決定する）
+// =================================================================
+export function getBasePrompt(archStyle) {
+  const common = "high quality architectural photography, highly detailed, silent atmosphere";
+  
+  // 温かい、明るい、やさしい雰囲気（ちひろ美術館など）
+  if (archStyle === "warm daylight & wood") {
+    return `${common}, bright natural daylight, soft airy lighting, warm and welcoming aesthetic, comforting, pristine`;
+  }
+  // 都会的、洗練、ホワイトキューブ（オペラシティなど）
+  if (archStyle === "urban high-rise gallery") {
+    return `${common}, clean pristine aesthetic, modern crisp lighting, sophisticated, bright white or cool gray tones, expansive`;
+  }
+  // ガラス建築や地中海も明るめにする
+  if (archStyle === "modern glass and steel" || archStyle === "mediterranean villa") {
+    return `${common}, bright natural light, clean modern aesthetic, crisp`;
+  }
+  
+  // デフォルト（従来の深い、暗めのトーン、侘び寂び）
+  return `${common}, soft dramatic lighting, muted aesthetic, wabi-sabi`;
+}
+
+// 従来の固定プロンプト（互換性のため残す）
 const STYLE_BASE = "high quality architectural photography, highly detailed, soft dramatic lighting, muted aesthetic, wabi-sabi, silent atmosphere";
 
 const NO_TEXT_PREFIX = "NO TEXT, NO LETTERS, NO WORDS, NO TYPOGRAPHY, NO HANDWRITING, NO CALLIGRAPHY, NO CAPTIONS, NO SIGNATURES anywhere in the image.";
@@ -79,11 +103,39 @@ const THEME_VARIATIONS = [
     isCanvasFriendly: false,
     roomNegative: "--no framed paintings, traditional gallery hanging, canvases",
     allowText: false
+  },
+  // 以下、明るい空間・都市の空間向けのバリエーションを追加
+  {
+    roomMood: "bright white cube gallery, flooded with natural daylight from skylights",
+    roomDisplay: "displaying artworks neatly on pristine white walls",
+    artTone: "clear and vivid, highly visible, modern",
+    artMedium: "contemporary 2D media, bright canvas, or modern photography",
+    isCanvasFriendly: true,
+    roomNegative: "--no dark walls, shadows, moody lighting, dirt, ruins",
+    allowText: false
+  },
+  {
+    roomMood: "warm wooden gallery space, soft welcoming atmosphere, large windows looking out",
+    roomDisplay: "exhibiting gentle artworks in a cozy, intimate setting",
+    artTone: "soft, gentle, comforting, nostalgic",
+    artMedium: "watercolor, pastel, or delicate illustration on paper",
+    isCanvasFriendly: true,
+    roomNegative: "--no cold lighting, harsh shadows, concrete, dark aesthetic",
+    allowText: false
+  },
+  {
+    roomMood: "sophisticated urban gallery, polished floors reflecting crisp light",
+    roomDisplay: "showcasing minimalist or pop artworks in a highly refined spatial layout",
+    artTone: "sharp, contemporary, stylish, vibrant",
+    artMedium: "modern mixed media, graphic art, or polished sculpture",
+    isCanvasFriendly: true,
+    roomNegative: "--no rustic textures, aged walls, dirt",
+    allowText: true
   }
 ];
 
 // =================================================================
-// 画風25種類の定義（英語キーワード／日本語ラベル）
+// 画風27種類の定義（英語キーワード／日本語ラベル）
 // =================================================================
 export const ART_STYLE_CATEGORIES = {
   // 西洋古典〜近世
@@ -165,6 +217,15 @@ export const ART_STYLE_CATEGORIES = {
     label: "ポップアート",
     keyword: "pop art style, bold flat colors, mass culture imagery, screen-print aesthetic, graphic high contrast"
   },
+  // 追加: 明るい・現代の画風
+  "contemporary-pop-graphic": {
+    label: "現代ポップ・グラフィック",
+    keyword: "contemporary graphic pop art, clean vector-like flat colors, stylish urban aesthetic, minimal and sharp, sleek"
+  },
+  "childrens-book-illustration": {
+    label: "絵本・童画風",
+    keyword: "children's book illustration style, soft watercolor and colored pencil, gentle shapes, whimsical and heartwarming, nostalgic, soft aesthetic"
+  },
   // 東洋・日本
   "ukiyo-e": {
     label: "浮世絵",
@@ -194,16 +255,27 @@ export const ART_STYLE_CATEGORIES = {
 };
 
 // =================================================================
-// 建築様式10種類 → 相性の良い画風プール
+// 建築様式12種類 → 相性の良い画風プール
 // =================================================================
 export const ARCHITECTURE_STYLES = {
+  // 追加: 都会の高層ギャラリー
+  "urban high-rise gallery": {
+    label: "都市の高層ギャラリー（洗練・ホワイトキューブ）",
+    artPool: ["minimalism", "pop-art", "contemporary-pop-graphic", "abstract-expressionism", "surrealism", "bauhaus"]
+  },
+  // 追加: 温かい光と木の美術館
+  "warm daylight & wood": {
+    label: "温もりある木造と自然光（絵本館・陽だまり）",
+    artPool: ["childrens-book-illustration", "impressionism", "naive-folk-art", "post-impressionism", "realism-landscape"]
+  },
+  // 従来
   "brutalist concrete": {
     label: "ブルータリズム（重厚なコンクリート）",
     artPool: ["minimalism", "abstract-expressionism", "bauhaus", "magic-realism", "expressionism"]
   },
   "modern glass and steel": {
     label: "近代ガラス建築（光と透明感）",
-    artPool: ["minimalism", "bauhaus", "pointillism", "art-deco", "pop-art"]
+    artPool: ["minimalism", "bauhaus", "pointillism", "art-deco", "pop-art", "contemporary-pop-graphic"]
   },
   "industrial warehouse": {
     label: "インダストリアル（荒々しい倉庫跡）",
@@ -319,6 +391,16 @@ const MOTIF_POOLS = {
     "a comic book panel with bold dots", "a row of soup cans repeating", "a portrait in saturated four-color print",
     "a giant lipstick on a bright background", "a stylized hamburger in flat color", "repeating images of a celebrity face"
   ],
+  // 追加: 現代ポップ
+  "contemporary-pop-graphic": [
+    "a stylish urban silhouette", "a sleek geometric fashion portrait", "a minimalist coffee cup and typography layout",
+    "a bold graphic eye looking forward", "overlapping translucent neon shapes", "a stylized high-contrast cityscape"
+  ],
+  // 追加: 絵本・童画風
+  "childrens-book-illustration": [
+    "a bear and a rabbit reading a book under a tree", "a cozy little house in a fairy tale forest", "a child flying on a giant owl over a sleeping town",
+    "a friendly dragon offering a flower", "a tiny village hidden in a giant mushroom", "a starry night over a peaceful meadow"
+  ],
   "ukiyo-e": [
     "a great wave curling over a distant mountain", "a courtesan adjusting her kimono", "travelers crossing a wooden bridge in rain",
     "mount fuji seen through cherry blossoms", "an actor striking a dramatic pose", "fireflies above a summer river"
@@ -430,17 +512,18 @@ export function generateMuseumPrompts(input) {
   const outputs = [];
   
   const conceptAddon = input.concept ? `reflecting the concept of "${input.concept}", ` : "";
+  const basePrompt = getBasePrompt(input.style);
   
   outputs.push({
     id: "approach", type: "phase", refIndex: 0,
     title: "アプローチ（外観・入り口)",
-    text: `${NO_TEXT_PREFIX} ${STYLE_BASE}, exterior of an art museum, ${input.style}, ${conceptAddon}located at ${input.location}, wide angle, lonely mood, --ar 16:9`
+    text: `${NO_TEXT_PREFIX} ${basePrompt}, exterior of an art museum, ${input.style}, ${conceptAddon}located at ${input.location}, wide angle, lonely mood, --ar 16:9`
   });
 
   outputs.push({
     id: "entrance", type: "phase", refIndex: 1,
     title: "エントランス・ロビー",
-    text: `${NO_TEXT_PREFIX} ${STYLE_BASE}, interior of an art museum lobby, ${input.style}, ${conceptAddon}empty, quiet, minimal design, --ar 16:9`
+    text: `${NO_TEXT_PREFIX} ${basePrompt}, interior of an art museum lobby, ${input.style}, ${conceptAddon}empty, quiet, minimal design, --ar 16:9`
   });
 
   for (let i = 1; i <= input.rooms; i++) {
@@ -454,7 +537,7 @@ export function generateMuseumPrompts(input) {
     outputs.push({
       id: `exhibition${i}`, type: "phase", refIndex: 1 + i,
       title: `第${i}展示室`,
-      text: `${prefix}${STYLE_BASE}, highly unique museum exhibition space, ${input.style}, ${conceptAddon}${variation.roomMood}, ${variation.roomDisplay}, ${artStyleContext} by ${input.artist}, cinematic composition ${variation.roomNegative} --ar 16:9`
+      text: `${prefix}${basePrompt}, highly unique museum exhibition space, ${input.style}, ${conceptAddon}${variation.roomMood}, ${variation.roomDisplay}, ${artStyleContext} by ${input.artist}, cinematic composition ${variation.roomNegative} --ar 16:9`
     });
   }
 
@@ -464,28 +547,28 @@ export function generateMuseumPrompts(input) {
     outputs.push({
       id: "cafe", type: "phase", refIndex: nextPhaseIndex++,
       title: "併設カフェ",
-      text: `${NO_TEXT_PREFIX} ${STYLE_BASE}, empty minimal cafe space inside an art museum, ${conceptAddon}lonely, moody, serving ${input.cafeMenu}, --ar 16:9`
+      text: `${NO_TEXT_PREFIX} ${basePrompt}, empty minimal cafe space inside an art museum, ${conceptAddon}lonely, moody, serving ${input.cafeMenu}, --ar 16:9`
     });
   }
   if (input.hasShop) {
     outputs.push({
       id: "shop", type: "phase", refIndex: nextPhaseIndex++,
       title: "ミュージアムショップ",
-      text: `${NO_TEXT_PREFIX} ${STYLE_BASE}, empty minimal museum shop interior, ${conceptAddon}abstract art books and silent souvenirs on shelves, calm interior, --ar 16:9`
+      text: `${NO_TEXT_PREFIX} ${basePrompt}, empty minimal museum shop interior, ${conceptAddon}abstract art books and silent souvenirs on shelves, calm interior, --ar 16:9`
     });
   }
   if (input.hasGarden) {
     outputs.push({
       id: "garden", type: "phase", refIndex: nextPhaseIndex++,
       title: "外部空間(中庭)",
-      text: `${NO_TEXT_PREFIX} ${STYLE_BASE}, open-air sculpture garden inside a museum, ${input.style}, ${conceptAddon}natural light, wind blowing, serene landscape, --ar 16:9`
+      text: `${NO_TEXT_PREFIX} ${basePrompt}, open-air sculpture garden inside a museum, ${input.style}, ${conceptAddon}natural light, wind blowing, serene landscape, --ar 16:9`
     });
   }
   if (input.hasRoof) {
     outputs.push({
       id: "roof", type: "phase", refIndex: nextPhaseIndex++,
       title: "屋上テラス",
-      text: `${NO_TEXT_PREFIX} ${STYLE_BASE}, museum rooftop terrace, ${input.style}, ${conceptAddon}infinite sky, quiet horizon, overlooking ${input.location}, cinematic, --ar 16:9`
+      text: `${NO_TEXT_PREFIX} ${basePrompt}, museum rooftop terrace, ${input.style}, ${conceptAddon}infinite sky, quiet horizon, overlooking ${input.location}, cinematic, --ar 16:9`
     });
   }
 
@@ -503,6 +586,8 @@ export function generateArtworkPrompt(artStyle, title = "", desc = "", concept =
     museumSeed = "",           // 美術館固有シード（ランダム時に同じ画風を保つ用）
     artworkSeed = ""           // 作品固有シード（モチーフ・構図のバリエーション用）
   } = options;
+
+  const basePrompt = getBasePrompt(architectureStyle);
 
   // 1. 実際に使う画風カテゴリを解決する
   const resolvedCategory = resolveArtStyleCategory(artStyleCategory, architectureStyle, roomIndex, museumSeed);
@@ -572,13 +657,15 @@ export function generateArtworkPrompt(artStyle, title = "", desc = "", concept =
     mediumPrompt = `medium/format: ${variation.artMedium}, `;
   }
 
-  return `${prefix}Pure artwork filling the entire frame as a single unified piece, subject: [ ${motif} ], ${conceptInfluence}art style/aesthetic: ${finalArtStyle}, ${composition}, emotional tone: ${variation.artTone}, ${mediumPrompt}soft museum lighting, highly detailed texture, museum-quality fine art, ${textlessKeyword}${noParams} --ar 16:9`;
+  return `${prefix}Pure artwork filling the entire frame as a single unified piece, subject: [ ${motif} ], ${conceptInfluence}art style/aesthetic: ${finalArtStyle}, ${composition}, emotional tone: ${variation.artTone}, ${mediumPrompt}${basePrompt}, museum-quality fine art, ${textlessKeyword}${noParams} --ar 16:9`;
 }
 
 // =================================================================
 // 半券デザイン用プロンプト
 // =================================================================
 const TICKET_STYLE_MAP = {
+  "urban high-rise gallery": "clean modern white graphic design, sophisticated typography, cool tones",
+  "warm daylight & wood": "warm natural paper texture, soft pastel accents, welcoming design, gentle aesthetic",
   "brutalist concrete": "rough concrete texture, raw industrial surface, monochrome gray tones, minimalist composition",
   "modern glass and steel": "clean geometric lines, cool blue and silver tones, transparent layers, refined modernist aesthetic",
   "industrial warehouse": "weathered metal stamp, raw cardboard texture, utilitarian design, oxidized rust tones",
@@ -600,3 +687,19 @@ export function generateTicketPrompt(input) {
   
   return `${NO_TEXT_PREFIX} Pure isolated object, vintage museum admission ticket stub design, vertical orientation, isolated on pure solid white background, standalone object, no surface, no shadow, no environment, no background context, ${styleQuality}, ${conceptAddon}aged paper texture with subtle wear, decorative border or framing element, abstract symbol or motif representing the museum's atmosphere, ample negative space for text overlay, museum collectible aesthetic, soft flat lighting, professional design --no text, words, letters, numbers, typography, captions, photographs of people, shadows, surfaces, tables, walls --ar 2:3`;
 }
+
+// =================================================================
+// 空間画像から作品を抽出するためのプロンプト
+// =================================================================
+export function generateExtractionPrompt(artStyle, concept, medium, is3D = false) {
+  const baseStyle = artStyle ? `art style: ${artStyle}, ` : "";
+  const conceptInfluence = concept ? `subtly reflecting "${concept}", ` : "";
+
+  if (is3D) {
+    return `extreme close-up of the exact 3D sculpture shown in the reference image, ${baseStyle}${conceptInfluence}isolated pure object, focused studio lighting, neutral solid background, highly detailed texture --no gallery interior, walls, windows, architectural elements, people, text --iw 1.5 --ar 16:9`;
+  } else {
+    return `frontal flat view of the exact artwork shown in the reference image, ${baseStyle}${conceptInfluence}pure artwork filling the entire frame, extreme close-up, highly detailed texture --no wall, frames, gallery interior, perspective distortion, floor, text, signatures --iw 1.5 --ar 16:9`;
+  }
+}
+
+// --- END OF FILE prompt-templates.js ---
