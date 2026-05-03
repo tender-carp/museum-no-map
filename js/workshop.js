@@ -4,7 +4,6 @@ import {
   generateMuseumPrompts, 
   generateArtworkPrompt, 
   generateTicketPrompt,
-  
   generateExtractionPrompt,
   ART_STYLE_CATEGORIES,
   ARCHITECTURE_STYLES,
