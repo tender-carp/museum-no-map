@@ -250,7 +250,15 @@ function runActivity(act, imageSrc) {
     }
   }
 
-  setTimeout(() => overlay.classList.add("show"), 50);
+  setTimeout(() => {
+    overlay.classList.add("show");
+    
+    // スマホで「空間を広く見渡す」を開いた時、視点（スクロール位置）を中央にセットする
+    if (act.isSpaceFocus && window.innerWidth <= 768) {
+      const container = document.getElementById("activity-image-container");
+      container.scrollLeft = (container.scrollWidth - container.clientWidth) / 2;
+    }
+  }, 50);
 }
 
 export function closeActivity() {
