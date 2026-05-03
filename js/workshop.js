@@ -4,6 +4,8 @@ import {
   generateMuseumPrompts, 
   generateArtworkPrompt, 
   generateTicketPrompt,
+  
+  generateExtractionPrompt,
   ART_STYLE_CATEGORIES,
   ARCHITECTURE_STYLES,
   pickRandomArtStyleForArchitecture
@@ -399,51 +401,50 @@ async function generateAndShowPoster(museum) {
   dlBtn.download = `invitation_${(museum.name || "untitled").slice(0, 10)}.jpg`;
 
   twBtn.onclick = async () => {
-  playSE("click");
-  const tweetText = `地図にない美術館を、ひとつ建てました。\n\n『${museum.name || "無名の空間"}』\n環境：${museum.location || "不明"}\n\nブラウザで静かに開く、地図にない場所です。\nhttps://yoshimitsuoct28-debug.github.io/museum-no-map/\n\n#地図にない美術館 #個人開発 #Webアプリ`;
-  
-  // Canvasから画像Blobを取得
-  const canvas = document.getElementById("poster-canvas");
-  
-  try {
-    // 画像をクリップボードへコピー（ClipboardItem API）
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    playSE("click");
+    const tweetText = `地図にない美術館を、ひとつ建てました。\n\n『${museum.name || "無名の空間"}』\n環境：${museum.location || "不明"}\n\nブラウザで静かに開く、地図にない場所です。\nhttps://yoshimitsuoct28-debug.github.io/museum-no-map/\n\n#地図にない美術館 #個人開発 #Webアプリ`;
     
-    if (navigator.clipboard && window.ClipboardItem) {
-      await navigator.clipboard.write([
-        new ClipboardItem({ "image/png": blob })
-      ]);
-      // 画像コピー成功 → テキストは別途案内
-      guideText.classList.remove("hidden");
-      guideText.innerHTML = 
-        "招待状の画像をクリップボードに写しました。<br>" +
-        "X の投稿画面で <strong>Ctrl+V</strong>（スマホは長押し→貼り付け）で添付してください。<br>" +
-        "本文は下のボタンからコピーできます。";
-    } else {
-      // ClipboardItem 非対応ブラウザ（古いSafariなど）
-      guideText.classList.remove("hidden");
-      guideText.innerHTML = 
-        "お使いのブラウザでは画像の自動コピーに対応していません。<br>" +
-        "「画像を保存する」ボタンから保存し、X の投稿画面で添付してください。";
-    }
+    // Canvasから画像Blobを取得
+    const canvas = document.getElementById("poster-canvas");
     
-    // X投稿画面を開く
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
-    window.open(twitterUrl, "_blank");
-  } catch (err) {
-    console.error("画像コピー失敗", err);
-    // フォールバック：テキストだけコピー
     try {
-      await navigator.clipboard.writeText(tweetText);
-    } catch(_) {}
-    guideText.classList.remove("hidden");
-    guideText.innerHTML = 
-      "画像の自動コピーに失敗しました。<br>" +
-      "「画像を保存する」ボタンから保存し、X の投稿画面で添付してください。";
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, "_blank");
-  }
-};
-
+      // 画像をクリップボードへコピー（ClipboardItem API）
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([
+          new ClipboardItem({ "image/png": blob })
+        ]);
+        // 画像コピー成功 → テキストは別途案内
+        guideText.classList.remove("hidden");
+        guideText.innerHTML = 
+          "招待状の画像をクリップボードに写しました。<br>" +
+          "X の投稿画面で <strong>Ctrl+V</strong>（スマホは長押し→貼り付け）で添付してください。<br>" +
+          "本文は下のボタンからコピーできます。";
+      } else {
+        // ClipboardItem 非対応ブラウザ（古いSafariなど）
+        guideText.classList.remove("hidden");
+        guideText.innerHTML = 
+          "お使いのブラウザでは画像の自動コピーに対応していません。<br>" +
+          "「画像を保存する」ボタンから保存し、X の投稿画面で添付してください。";
+      }
+      
+      // X投稿画面を開く
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+      window.open(twitterUrl, "_blank");
+    } catch (err) {
+      console.error("画像コピー失敗", err);
+      // フォールバック：テキストだけコピー
+      try {
+        await navigator.clipboard.writeText(tweetText);
+      } catch(_) {}
+      guideText.classList.remove("hidden");
+      guideText.innerHTML = 
+        "画像の自動コピーに失敗しました。<br>" +
+        "「画像を保存する」ボタンから保存し、X の投稿画面で添付してください。";
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, "_blank");
+    }
+  };
 }
 
 // =================================================================
@@ -1210,11 +1211,20 @@ function addArtworkUI(container, phaseDraft, existingArtData = null, roomIndex =
     <input type="text" class="art-desc" placeholder="キャプション・説明 (例: 1970年代の作品。)">
     <input type="text" class="art-link" placeholder="外部リンク (例: https://booth.pm/...)">
     
-    <button type="button" class="btn-secondary btn-update-prompt" style="margin-top:1.5rem; font-size:0.8rem; padding:0.4rem 0.8rem; width:100%;">↑ 入力内容からAIプロンプトを生成・更新する</button>
+    <div style="display:flex; gap:0.5rem; margin-top:1.5rem; align-items:stretch;">
+      <button type="button" class="btn-secondary btn-update-prompt" style="flex:1; font-size:0.75rem; padding:0.6rem; display:flex; flex-direction:column; justify-content:center;">
+        <span style="display:block; margin-bottom:0.2rem; color:var(--text-soft);">① ゼロから生成する</span>
+        <span style="display:block; font-size:0.65rem; color:var(--text-dim);">入力内容から新規作成</span>
+      </button>
+      <button type="button" class="btn-secondary btn-extract-prompt" style="flex:1; font-size:0.75rem; padding:0.6rem; border-color:var(--accent-deep); display:flex; flex-direction:column; justify-content:center;">
+        <span style="display:block; margin-bottom:0.2rem; color:var(--accent);">② 空間画像から抽出する</span>
+        <span style="display:block; font-size:0.65rem; color:var(--text-dim);">壁の絵を真正面に直す</span>
+      </button>
+    </div>
     
     <p class="hint" style="margin-top:0.8rem; margin-bottom:0.3rem;">
-      【ヒント】この展示室の「空間画像」を生成AIの Image Prompt として読み込ませ、以下のテキストと組み合わせてください。<br>
-      <span style="font-size:0.8rem;">※AIは長文や日本語を入れると「文字のポスター」を生成しやすくなります。うまく生成されない場合は、説明文を「Rock (岩)」「Abstract (抽象)」などシンプルな英語のみに書き換えてください。</span>
+      【ヒント】AIツールに「この展示室の空間画像」を読み込ませ、下のプロンプトを実行してください。<br>
+      <span style="font-size:0.8rem;">※AIは長文や日本語を入れると「文字のポスター」を生成しやすくなります。うまく生成されない場合は、説明文をシンプルな英語のみに書き換えてください。</span>
     </p>
     
     <div class="prompt-box">
@@ -1340,6 +1350,28 @@ function addArtworkUI(container, phaseDraft, existingArtData = null, roomIndex =
     
     promptTextarea.style.backgroundColor = "#2a2a2a";
     setTimeout(() => { promptTextarea.style.backgroundColor = "transparent"; }, 400);
+  });
+
+  artBlock.querySelector(".btn-extract-prompt").addEventListener("click", () => {
+    let finalMedium = selectMedium.value;
+    if (finalMedium === "custom") finalMedium = inputCustomMedium.value;
+    
+    const promptTextarea = artBlock.querySelector(".art-prompt-text");
+    const is3D = finalMedium === "sculpture";
+    
+    promptTextarea.value = generateExtractionPrompt(
+      currentDraft.artStyle, 
+      currentDraft.concept, 
+      finalMedium,
+      is3D
+    );
+    
+    promptTextarea.style.backgroundColor = "rgba(212, 181, 116, 0.1)";
+    promptTextarea.style.borderColor = "var(--accent)";
+    setTimeout(() => { 
+      promptTextarea.style.backgroundColor = "transparent"; 
+      promptTextarea.style.borderColor = "#2a2a2a"; 
+    }, 400);
   });
 
   artBlock.querySelector(".art-img-input").addEventListener("change", async (e) => {
